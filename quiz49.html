@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulazione Concorso Operatore Socio Sanitario - Modulo 43</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            margin: 0;
+            padding: 20px;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700; }
+            to { text-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700; }
+        }
+
+        #timer {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5em;
+            color: #00eaff;
+            text-shadow: 0 0 5px #00eaff;
+        }
+
+        .question-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .question-box {
+            width: 40px;
+            height: 40px;
+            margin: 8px;
+            background: linear-gradient(45deg, #333, #555);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .question-box:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #ffd700;
+        }
+
+        .question-box.answered {
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            box-shadow: 0 0 15px #ffd700;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question.active {
+            display: block;
+        }
+
+        .question h3 {
+            margin: 0 0 15px 0;
+            color: #ffffff;
+            font-size: 1.6em;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+            line-height: 1.4;
+        }
+
+        .option {
+            margin: 10px 0;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #ffffff;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateX(5px);
+        }
+
+        .option.correct {
+            background: linear-gradient(90deg, #00eaff, #00b8d4);
+            color: #fff;
+            box-shadow: 0 0 15px #00eaff;
+        }
+
+        .option.wrong {
+            background: linear-gradient(90deg, #ff5252, #d81b60);
+            color: #fff;
+            box-shadow: 0 0 15px #ff5252;
+        }
+
+        .lamp {
+            display: none;
+            margin-left: 15px;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+            transition: transform 0.3s ease;
+        }
+
+        .lamp:hover {
+            transform: scale(1.2);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            font-style: italic;
+            color: #f0f0f0;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            animation: slideIn 0.5s ease;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .nav-button {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: 0 0 10px #ffd700;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .nav-button:disabled {
+            background: #666;
+            color: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ffd700;
+        }
+
+        button#submit {
+            display: block;
+            width: 250px;
+            margin: 20px auto;
+            padding: 15px;
+            background: linear-gradient(45deg, #00eaff, #00b8d4);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.3em;
+            box-shadow: 0 0 15px #00eaff;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button#submit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px #00eaff;
+        }
+
+        #result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8em;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Simulazione Concorso Operatore Socio Sanitario - Modulo 43</h1>
+        <div class="question-nav" id="questionNav"></div>
+        <div id="timer">Tempo rimanente: <span id="time">30:00</span></div>
+        <div id="quiz"></div>
+        <div class="navigation">
+            <button class="nav-button" id="prev" disabled>⬅ Indietro</button>
+            <button class="nav-button" id="next">Avanti ➡</button>
+        </div>
+        <button id="submit">Invia Risposte</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Array di domande (61-90) dalla banca dati, con opzioni mescolate e risposte corrette distribuite casualmente
+        const questions = [
+            {
+                question: "Di cosa bisogna assicurarsi prima di far camminare l’assistito col deambulatore?",
+                options: [
+                    "Bisogna verificare la prescrizione del fisiatra",
+                    "Bisogna controllare il funzionamento del sistema di bloccaggio del deambulatore",
+                    "Bisogna assicurarsi che gli ascellari siano fissati all’altezza idonea"
+                ],
+                correct: "Bisogna assicurarsi che gli ascellari siano fissati all’altezza idonea",
+                explanation: "L’altezza corretta degli ascellari garantisce sicurezza e comfort. L’OSS regola il deambulatore, verifica la stabilità del paziente, e segnala difficoltà motorie."
+            },
+            {
+                question: "Le piastrine hanno la funzione:",
+                options: [
+                    "di trasportare calcio",
+                    "Nessuna delle altre risposte è corretta",
+                    "di trasportare emoglobina"
+                ],
+                correct: "Nessuna delle altre risposte è corretta",
+                explanation: "Le piastrine favoriscono la coagulazione. L’OSS monitora segni di sanguinamento (es. ecchimosi) e li segnala all’infermiere."
+            },
+            {
+                question: "Il plasma è:",
+                options: [
+                    "sinonimo di linfa",
+                    "la parte liquida del sangue",
+                    "la parte figurata del sangue"
+                ],
+                correct: "la parte liquida del sangue",
+                explanation: "Il plasma è la componente liquida del sangue. L’OSS osserva segni di disidratazione o edema, segnalandoli all’infermiere."
+            },
+            {
+                question: "Qual è la temperatura ottimale dell’acqua utilizzata per il bagno del degente?",
+                options: [
+                    "30°C",
+                    "38°C",
+                    "25°C"
+                ],
+                correct: "38°C",
+                explanation: "L’acqua a 38°C è confortevole e sicura. L’OSS verifica la temperatura, esegue il bagno con delicatezza, e segnala irritazioni cutanee."
+            },
+            {
+                question: "Quale vitamina è detta anche vitamina del sole?",
+                options: [
+                    "La vitamina C",
+                    "La vitamina D",
+                    "La vitamina B9"
+                ],
+                correct: "La vitamina D",
+                explanation: "La vitamina D è prodotta con l’esposizione al sole. L’OSS promuove attività all’aperto per anziani, segnalando carenze sospette."
+            },
+            {
+                question: "Nel rifacimento del letto occupato con 2 operatori:",
+                options: [
+                    "lasciare il paziente in posizione supina e procedere al rifacimento dall’alto verso il basso",
+                    "girare il paziente di lato, applicare fin sotto la schiena la biancheria sporca, quindi eliminare da sotto quella sporca facendola scivolare",
+                    "girare il paziente di lato, arrotolare la biancheria sotto la schiena del paziente, stendere la biancheria pulita nella parte di materasso rimasta libera"
+                ],
+                correct: "girare il paziente di lato, arrotolare la biancheria sotto la schiena del paziente, stendere la biancheria pulita nella parte di materasso rimasta libera",
+                explanation: "Questa tecnica minimizza il disagio del paziente. L’OSS collabora con un collega, garantendo sicurezza e comfort."
+            },
+            {
+                question: "Per svuotare la sacca di raccolta delle urine:",
+                options: [
+                    "svuoto la sacca in un secchio",
+                    "disinfetto il rubinetto prima dell’apertura, svuoto la sacca in un contenitore monopaziente, disinfetto il rubinetto prima di chiuderlo",
+                    "stacco la sacca dal catetere vescicale e procedo allo svuotamento"
+                ],
+                correct: "disinfetto il rubinetto prima dell’apertura, svuoto la sacca in un contenitore monopaziente, disinfetto il rubinetto prima di chiuderlo",
+                explanation: "La disinfezione previene infezioni. L’OSS usa DPI, misura il volume di urina, e segnala anomalie (es. sedimento)."
+            },
+            {
+                question: "Nell’aiuto alla vestizione e svestizione dell’utente, l’OSS deve sempre:",
+                options: [
+                    "non ci sono indicazioni particolari",
+                    "rispettare i tempi della persona",
+                    "essere veloce per non far prendere freddo al paziente"
+                ],
+                correct: "rispettare i tempi della persona",
+                explanation: "Rispettare i tempi promuove l’autonomia. L’OSS offre supporto empatico, segnalando difficoltà motorie."
+            },
+            {
+                question: "Per prevenire la lesione da decubito è necessario:",
+                options: [
+                    "effettuare massaggi a base di alcool saponato",
+                    "mantenere la cute pulita e asciutta",
+                    "effettuare la cura della cute con detergenti energici"
+                ],
+                correct: "mantenere la cute pulita e asciutta",
+                explanation: "La cute pulita e asciutta previene le piaghe. L’OSS cambia posizione al paziente e segnala arrossamenti."
+            },
+            {
+                question: "L’OSS nel rifare il letto deve:",
+                options: [
+                    "esporre la biancheria usata all’aria, dopo averla scossa",
+                    "maneggiare il meno possibile le lenzuola usate",
+                    "piegare correttamente e con cura le lenzuola usate"
+                ],
+                correct: "maneggiare il meno possibile le lenzuola usate",
+                explanation: "Minimizzare la manipolazione riduce la dispersione di germi. L’OSS usa DPI e smaltisce la biancheria correttamente."
+            },
+            {
+                question: "L’OSS addetto al trasporto del materiale biologico esegue questo compito:",
+                options: [
+                    "nel rispetto di disposizioni specifiche",
+                    "nel rispetto di disposizioni specifiche, nel più breve tempo possibile",
+                    "il materiale biologico non si trasporta"
+                ],
+                correct: "nel rispetto di disposizioni specifiche, nel più breve tempo possibile",
+                explanation: "Il trasporto rapido e sicuro preserva i campioni. L’OSS segue protocolli e segnala ritardi o problemi."
+            },
+            {
+                question: "Nel controllare la presenza degli accessori del letto, l’OSS verifica che nella stanza ci siano:",
+                options: [
+                    "sedia, schienale, campanello",
+                    "spondine, archetti, staffa",
+                    "comodino, campanello, archetti"
+                ],
+                correct: "spondine, archetti, staffa",
+                explanation: "Questi accessori garantiscono sicurezza. L’OSS verifica il loro stato e segnala malfunzionamenti."
+            },
+            {
+                question: "Come si definisce l’umidità relativa dell’aria?",
+                options: [
+                    "Umidità massima raggiungibile nell’aria",
+                    "Rapporto tra umidità presente nell’aria al momento della rilevazione e massima quantità di umidità raggiungibile nell’aria",
+                    "Umidità presente nell’aria al momento della rilevazione"
+                ],
+                correct: "Rapporto tra umidità presente nell’aria al momento della rilevazione e massima quantità di umidità raggiungibile nell’aria",
+                explanation: "L’umidità relativa influisce sul comfort. L’OSS regola il microclima della stanza, segnalando condizioni inadeguate."
+            },
+            {
+                question: "Che cosa è una linea guida?",
+                options: [
+                    "Deve essere eseguita solo in situazioni di urgenza",
+                    "Una raccomandazione",
+                    "È un’imposizione"
+                ],
+                correct: "Una raccomandazione",
+                explanation: "Le linee guida orientano le pratiche. L’OSS le segue per garantire cure sicure, collaborando con l’équipe."
+            },
+            {
+                question: "Gli indumenti e le lenzuola monouso (già usati dai pazienti), macchiati da urina sono da considerare:",
+                options: [
+                    "rifiuti pericolosi che richiedono particolari modalità di smaltimento",
+                    "rifiuti pericolosi a rischio infettivo",
+                    "rifiuti non pericolosi assimilabili agli urbani"
+                ],
+                correct: "rifiuti pericolosi a rischio infettivo",
+                explanation: "La biancheria contaminata è un rischio infettivo. L’OSS usa DPI e smaltisce in contenitori specifici."
+            },
+            {
+                question: "Uno strumento si può definire sterile quando:",
+                options: [
+                    "esiste una probabilità su 1000000000 che sia contaminato da agenti microbici",
+                    "esiste una probabilità su 1000000 che sia contaminato da agenti microbici",
+                    "esiste una probabilità su 100 che sia contaminato da agenti microbici"
+                ],
+                correct: "esiste una probabilità su 1000000 che sia contaminato da agenti microbici",
+                explanation: "La sterilità implica un rischio minimo di contaminazione. L’OSS gestisce strumenti sterili con cura, segnalando violazioni."
+            },
+            {
+                question: "Per quale delle seguenti patologie non è giustificato?",
+                options: [
+                    "Tubercolosi",
+                    "Aspergillosi",
+                    "Rosolia"
+                ],
+                correct: "Aspergillosi",
+                explanation: "L’aspergillosi non richiede sempre isolamento. L’OSS segue le precauzioni per malattie infettive, segnalando dubbi."
+            },
+            {
+                question: "I corsi BLS/BLSD sono relativi:",
+                options: [
+                    "Ad indirizzi di terapia infettiva",
+                    "A pratiche salvavita",
+                    "Pratiche assistenziali"
+                ],
+                correct: "A pratiche salvavita",
+                explanation: "BLS/BLSD insegnano manovre salvavita. L’OSS può applicare tecniche di base in emergenza, avvisando il personale."
+            },
+            {
+                question: "Il reparto Dialisi, da un punto di vista igienico-sanitario, è un ambiente:",
+                options: [
+                    "a medio rischio",
+                    "ad alto rischio",
+                    "a basso rischio"
+                ],
+                correct: "ad alto rischio",
+                explanation: "La dialisi è ad alto rischio infettivo. L’OSS usa DPI, segue protocolli di disinfezione, e segnala irregolarità."
+            },
+            {
+                question: "Una parente vi chiede notizie su un paziente ricoverato nel vostro reparto:",
+                options: [
+                    "Date pareri personali sullo stato di salute del paziente",
+                    "Lo indirizzate dal medico o al caposala o all’infermiere",
+                    "Prendete la cartella clinica e gliela leggete"
+                ],
+                correct: "Lo indirizzate dal medico o al caposala o all’infermiere",
+                explanation: "L’OSS non divulga informazioni sanitarie, rispettando il segreto professionale, e reindirizza ai professionisti."
+            },
+            {
+                question: "Nel caso un paziente segnali dolorabilità come si deve comportare l’OSS?",
+                options: [
+                    "Effettua la segnalazione ai parenti del paziente",
+                    "Effettua la segnalazione all’infermiere/caposala",
+                    "Rassicura il paziente"
+                ],
+                correct: "Effettua la segnalazione all’infermiere/caposala",
+                explanation: "L’OSS segnala il dolore all’infermiere per una valutazione, offrendo comfort al paziente."
+            },
+            {
+                question: "Per quale delle seguenti malattie non è attualmente disponibile un vaccino?",
+                options: [
+                    "Epatite A",
+                    "AIDS",
+                    "Morbillo"
+                ],
+                correct: "AIDS",
+                explanation: "Non esiste un vaccino per l’AIDS. L’OSS segue precauzioni universali per prevenire infezioni, segnalando rischi."
+            },
+            {
+                question: "Quale delle seguenti manovre è maggiormente causa nel determinare una infezione ospedaliera?",
+                options: [
+                    "Inserire una sonda rettale",
+                    "Inserire un catetere urinario",
+                    "Inserire un catetere venoso centrale"
+                ],
+                correct: "Inserire un catetere urinario",
+                explanation: "I cateteri urinari sono una causa comune di infezioni. L’OSS monitora segni di infezione e segue protocolli di igiene."
+            },
+            {
+                question: "Quali tra i presenti sono presidi antidecubito?",
+                options: [
+                    "Materassi in lattice",
+                    "Materassi a tre sezioni",
+                    "Talloniere"
+                ],
+                correct: "Talloniere",
+                explanation: "Le talloniere prevengono le piaghe da decubito. L’OSS le applica correttamente, segnalando lesioni cutanee."
+            },
+            {
+                question: "Il primo soccorso è:",
+                options: [
+                    "L’intervento di personale sanitario in ambito ospedaliero",
+                    "L’aiuto prestato a una persona coinvolta in un incidente o colta da malore in attesa di personale qualificato",
+                    "L’intervento immediato che mira a risolvere problemi di salute urgenti"
+                ],
+                correct: "L’aiuto prestato a una persona coinvolta in un incidente o colta da malore in attesa di personale qualificato",
+                explanation: "Il primo soccorso è un intervento temporaneo. L’OSS applica tecniche di base e chiama i soccorsi."
+            },
+            {
+                question: "L’eccessiva macerazione cutanea è un fattore favorente:",
+                options: [
+                    "Prurito",
+                    "Lesioni da compressione",
+                    "Ematomi"
+                ],
+                correct: "Lesioni da compressione",
+                explanation: "La macerazione favorisce piaghe da decubito. L’OSS mantiene la cute asciutta e segnala arrossamenti."
+            },
+            {
+                question: "Deficit di memoria sta ad AMNESIA come difficoltà di deglutizione sta a:",
+                options: [
+                    "narcolessia",
+                    "disfagia",
+                    ""
+                ],
+                correct: "disfagia",
+                explanation: "La disfagia è la difficoltà di deglutizione. L’OSS assiste pazienti disfagici, segnalando rischi di soffocamento."
+            },
+            {
+                question: "La memoria procedurale ha a che fare con:",
+                options: [
+                    "Il ricordo di avvenimenti futuri",
+                    "La memoria di abitudini",
+                    "La memoria di lavoro"
+                ],
+                correct: "La memoria di abitudini",
+                explanation: "La memoria procedurale riguarda abitudini motorie. L’OSS supporta pazienti con deficit, promuovendo routine."
+            },
+            {
+                question: "Nelle persone anziane si verifica:",
+                options: [
+                    "tutte le risposte sono corrette",
+                    "Una diminuzione della massa muscolare",
+                    "Un aumento della massa adiposa"
+                ],
+                correct: "Una diminuzione della massa muscolare",
+                explanation: "Gli anziani perdono massa muscolare. L’OSS promuove esercizi leggeri e segnala debolezza."
+            },
+            {
+                question: "Quando un utente anziano è a forte rischio di caduta e non è cognitivamente integro:",
+                options: [
+                    "nessuna delle altre risposte è corretta",
+                    "È indispensabile fare ricorso a strumenti di contenzione per evitare i rischi di una caduta, certamente pericolosi e dannosi per la sua qualità di vita",
+                    "È utile pianificare, solo per il tempo necessario, interventi di tutela, individualizzati e riguardosi della dignità umana, da parte dell’intera équipe professionale"
+                ],
+                correct: "È utile pianificare, solo per il tempo necessario, interventi di tutela, individualizzati e riguardosi della dignità umana, da parte dell’intera équipe professionale",
+                explanation: "Gli interventi di tutela prevengono cadute senza contenzione. L’OSS monitora il paziente e segnala rischi."
+            }
+        ];
+
+        // Script per la gestione del quiz (navigazione, timer, invio risposte)
+        let currentQuestion = 0;
+        let answers = new Array(questions.length).fill(null);
+        let timeLeft = 30 * 60; // 30 minuti in secondi
+
+        function startTimer() {
+            const timerElement = document.getElementById('time');
+            const interval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    submitQuiz();
+                } else {
+                    timeLeft--;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                }
+            }, 1000);
+        }
+
+        function renderQuestion() {
+            const quizElement = document.getElementById('quiz');
+            quizElement.innerHTML = '';
+            const question = questions[currentQuestion];
+            const questionElement = document.createElement('div');
+            questionElement.classList.add('question', 'active');
+            questionElement.innerHTML = `
+                <h3>${currentQuestion + 1}. ${question.question}</h3>
+                ${question.options.map((option, index) => `
+                    <div class="option" data-index="${index}">
+                        <input type="radio" name="q${currentQuestion}" value="${option}" ${answers[currentQuestion] === option ? 'checked' : ''}>
+                        ${option}
+                        <span class="lamp">💡</span>
+                    </div>
+                `).join('')}
+                <div class="explanation">${question.explanation}</div>
+            `;
+            quizElement.appendChild(questionElement);
+
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const input = option.querySelector('input');
+                    input.checked = true;
+                    answers[currentQuestion] = input.value;
+                    document.querySelectorAll('.question-box')[currentQuestion].classList.add('answered');
+                    option.querySelector('.lamp').style.display = 'inline';
+                });
+            });
+
+            document.querySelectorAll('.lamp').forEach(lamp => {
+                lamp.addEventListener('click', () => {
+                    const explanation = lamp.parentElement.parentElement.querySelector('.explanation');
+                    explanation.style.display = explanation.style.display === 'block' ? 'none' : 'block';
+                });
+            });
+        }
+
+        function renderNav() {
+            const navElement = document.getElementById('questionNav');
+            navElement.innerHTML = questions.map((_, index) => `
+                <div class="question-box ${answers[index] !== null ? 'answered' : ''}" data-index="${index}">${index + 1}</div>
+            `).join('');
+            document.querySelectorAll('.question-box').forEach(box => {
+                box.addEventListener('click', () => {
+                    currentQuestion = parseInt(box.dataset.index);
+                    renderQuestion();
+                    updateNavButtons();
+                });
+            });
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prev').disabled = currentQuestion === 0;
+            document.getElementById('next').disabled = currentQuestion === questions.length - 1;
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            answers.forEach((answer, index) => {
+                if (answer === questions[index].correct) score++;
+            });
+            document.getElementById('result').textContent = `Punteggio: ${score}/${questions.length}`;
+            document.getElementById('submit').disabled = true;
+        }
+
+        document.getElementById('prev').addEventListener('click', () => {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+                updateNavButtons();
+            }
+        });
+
+        document.getElementById('next').addEventListener('click', () => {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+                updateNavButtons();
+            }
+        });
+
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+
+        // Inizializzazione
+        renderNav();
+        renderQuestion();
+        updateNavButtons();
+        startTimer();
+    </script>
+</body>
+</html>
