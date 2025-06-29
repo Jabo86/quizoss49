@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulazione Concorso Operatore Socio Sanitario </title>
+    <title>Simulazione Concorso Operatore Socio Sanitario</title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -184,7 +184,7 @@
             cursor: pointer;
             font-size: 1.2em;
             box-shadow: 0 0 10px #ffd700;
-            transition: all 0.3s ease;
+            transition: ox-shadow, transform 0.3s ease;
             font-weight: bold;
         }
 
@@ -197,7 +197,7 @@
 
         .nav-button:hover:not(:disabled) {
             transform: scale(1.05);
-            box-shadow: 0 0 20px #ffd700;
+            box shadow: 0 0 20px #ffd700;
         }
 
         button#submit {
@@ -233,7 +233,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Simulazione Concorso Operatore Socio Sanitario </h1>
+        <h1>Simulazione Concorso Operatore Socio Sanitario</h1>
         <div class="question-nav" id="questionNav"></div>
         <div id="timer">Tempo rimanente: <span id="time">30:00</span></div>
         <div id="quiz"></div>
@@ -246,7 +246,7 @@
     </div>
 
     <script>
-        // Array di domande (61-90) dalla banca dati, con opzioni mescolate e risposte corrette distribuite casualmente
+        // Array di domande (61-90) dalla banca dati
         const questions = [
             {
                 question: "Di cosa bisogna assicurarsi prima di far camminare l’assistito col deambulatore?",
@@ -550,114 +550,126 @@
             }
         ];
 
-        // Script per la gestione del quiz (navigazione, timer, invio risposte)
         let currentQuestion = 0;
-        let answers = new Array(questions.length).fill(null);
         let timeLeft = 30 * 60; // 30 minuti in secondi
 
+        // Carica i quadratini di navigazione
+        function loadQuestionNav() {
+            const navDiv = document.getElementById("questionNav");
+            questions.forEach((_, index) => {
+                const box = document.createElement("div");
+                box.classList.add("question-box");
+                box.textContent = index + 1;
+                box.addEventListener("click", () => {
+                    showQuestion(index);
+                });
+                navDiv.appendChild(box);
+            });
+        }
+
+        // Carica il quiz
+        function loadQuiz() {
+            const quizDiv = document.getElementById("quiz");
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement("div");
+                questionDiv.classList.add("question");
+                questionDiv.id = `question-${index}`;
+                questionDiv.innerHTML = `
+                    <h3>${index + 1}. ${q.question}</h3>
+                    ${q.options.map((opt, i) => `
+                        <div class="option" data-value="${opt}">
+                            <input type="radio" name="q${index}" value="${opt}" id="q${index}_${i}">
+                            <label for="q${index}_${i}">${opt}</label>
+                            <span class="lamp" id="lamp-${index}-${i}">💡</span>
+                        </div>
+                    `).join("")}
+                    <div class="explanation" id="exp-${index}">${q.explanation}</div>
+                `;
+                quizDiv.appendChild(questionDiv);
+
+                const radios = questionDiv.querySelectorAll(`input[name="q${index}"]`);
+                radios.forEach(radio => {
+                    radio.addEventListener("change", () => {
+                        document.querySelectorAll(".question-box")[index].classList.add("answered");
+                    });
+                });
+            });
+            showQuestion(0);
+        }
+
+        // Mostra la domanda corrente
+        function showQuestion(index) {
+            document.querySelectorAll(".question").forEach(q => q.classList.remove("active"));
+            document.getElementById(`question-${index}`).classList.add("active");
+            currentQuestion = index;
+            document.getElementById("prev").disabled = currentQuestion === 0;
+            document.getElementById("next").disabled = currentQuestion === questions.length - 1;
+        }
+
+        // Timer
         function startTimer() {
-            const timerElement = document.getElementById('time');
-            const interval = setInterval(() => {
+            const timer = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById("time").textContent = 
+                    `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
                 if (timeLeft <= 0) {
-                    clearInterval(interval);
-                    submitQuiz();
-                } else {
-                    timeLeft--;
-                    const minutes = Math.floor(timeLeft / 60);
-                    const seconds = timeLeft % 60;
-                    timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    clearInterval(timer);
+                    checkAnswers();
                 }
             }, 1000);
         }
 
-        function renderQuestion() {
-            const quizElement = document.getElementById('quiz');
-            quizElement.innerHTML = '';
-            const question = questions[currentQuestion];
-            const questionElement = document.createElement('div');
-            questionElement.classList.add('question', 'active');
-            questionElement.innerHTML = `
-                <h3>${currentQuestion + 1}. ${question.question}</h3>
-                ${question.options.map((option, index) => `
-                    <div class="option" data-index="${index}">
-                        <input type="radio" name="q${currentQuestion}" value="${option}" ${answers[currentQuestion] === option ? 'checked' : ''}>
-                        ${option}
-                        <span class="lamp">💡</span>
-                    </div>
-                `).join('')}
-                <div class="explanation">${question.explanation}</div>
-            `;
-            quizElement.appendChild(questionElement);
-
-            document.querySelectorAll('.option').forEach(option => {
-                option.addEventListener('click', () => {
-                    const input = option.querySelector('input');
-                    input.checked = true;
-                    answers[currentQuestion] = input.value;
-                    document.querySelectorAll('.question-box')[currentQuestion].classList.add('answered');
-                    option.querySelector('.lamp').style.display = 'inline';
-                });
-            });
-
-            document.querySelectorAll('.lamp').forEach(lamp => {
-                lamp.addEventListener('click', () => {
-                    const explanation = lamp.parentElement.parentElement.querySelector('.explanation');
-                    explanation.style.display = explanation.style.display === 'block' ? 'none' : 'block';
-                });
-            });
-        }
-
-        function renderNav() {
-            const navElement = document.getElementById('questionNav');
-            navElement.innerHTML = questions.map((_, index) => `
-                <div class="question-box ${answers[index] !== null ? 'answered' : ''}" data-index="${index}">${index + 1}</div>
-            `).join('');
-            document.querySelectorAll('.question-box').forEach(box => {
-                box.addEventListener('click', () => {
-                    currentQuestion = parseInt(box.dataset.index);
-                    renderQuestion();
-                    updateNavButtons();
-                });
-            });
-        }
-
-        function updateNavButtons() {
-            document.getElementById('prev').disabled = currentQuestion === 0;
-            document.getElementById('next').disabled = currentQuestion === questions.length - 1;
-        }
-
-        function submitQuiz() {
+        // Controllo risposte e feedback visivo
+        function checkAnswers() {
             let score = 0;
-            answers.forEach((answer, index) => {
-                if (answer === questions[index].correct) score++;
+            questions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                const options = document.querySelectorAll(`#question-${index} .option`);
+                options.forEach(option => {
+                    const value = option.getAttribute("data-value");
+                    if (value === q.correct) {
+                        option.classList.add("correct");
+                        const lamp = option.querySelector(".lamp");
+                        lamp.style.display = "inline";
+                        lamp.addEventListener("click", () => {
+                            const explanation = document.getElementById(`exp-${index}`);
+                            explanation.style.display = explanation.style.display === "block" ? "none" : "block";
+                        });
+                    }
+                });
+                if (selected) {
+                    if (selected.value === q.correct) {
+                        score++;
+                    } else {
+                        selected.parentElement.classList.add("wrong");
+                    }
+                }
             });
-            document.getElementById('result').textContent = `Punteggio: ${score}/${questions.length}`;
-            document.getElementById('submit').disabled = true;
+            const resultDiv = document.getElementById("result");
+            resultDiv.textContent = `Punteggio: ${score} / ${questions.length}`;
+            document.getElementById("submit").disabled = true;
+            document.getElementById("prev").disabled = true;
+            document.getElementById("next").disabled = true;
+            document.querySelectorAll("input[type=radio]").forEach(radio => {
+                radio.disabled = true;
+            });
         }
-
-        document.getElementById('prev').addEventListener('click', () => {
-            if (currentQuestion > 0) {
-                currentQuestion--;
-                renderQuestion();
-                updateNavButtons();
-            }
-        });
-
-        document.getElementById('next').addEventListener('click', () => {
-            if (currentQuestion < questions.length - 1) {
-                currentQuestion++;
-                renderQuestion();
-                updateNavButtons();
-            }
-        });
-
-        document.getElementById('submit').addEventListener('click', submitQuiz);
 
         // Inizializzazione
-        renderNav();
-        renderQuestion();
-        updateNavButtons();
-        startTimer();
+        window.onload = () => {
+            loadQuestionNav();
+            loadQuiz();
+            startTimer();
+            document.getElementById("prev").addEventListener("click", () => {
+                if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+            });
+            document.getElementById("next").addEventListener("click", () => {
+                if (currentQuestion < questions.length - 1) showQuestion(currentQuestion + 1);
+            });
+            document.getElementById("submit").addEventListener("click", checkAnswers);
+        };
     </script>
 </body>
 </html>
